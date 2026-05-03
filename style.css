@@ -57,7 +57,7 @@ html,body{
 
 @keyframes bgHue{
   0%{ filter:hue-rotate(0deg); }
-  50%{ filter:hue-rotate(30deg); }
+  50%{ filter:hue-rotate(35deg); }
   100%{ filter:hue-rotate(0deg); }
 }
 
@@ -68,14 +68,14 @@ html,body{
     linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
   background-size:70px 70px;
-  opacity:0.16;
+  opacity:0.18;
   transform:perspective(750px) rotateX(62deg) translateY(180px);
-  animation:gridMove 8s infinite linear;
+  animation:gridMove 7s infinite linear;
 }
 
 @keyframes gridMove{
   from{ background-position:0 0; }
-  to{ background-position:0 400px; }
+  to{ background-position:0 420px; }
 }
 
 .bg-orb{
@@ -119,7 +119,7 @@ html,body{
   background:linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0,170,255,0.12) 50%,
+    rgba(0,170,255,0.14) 50%,
     transparent 100%
   );
   opacity:0.22;
@@ -155,16 +155,6 @@ html,body{
   background-image:url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
   opacity:0.08;
   mix-blend-mode:overlay;
-}
-
-/* Particle canvas */
-#particles{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  z-index:1;
-  opacity:0.6;
 }
 
 /* =====================================================
@@ -241,7 +231,7 @@ html,body{
 }
 
 /* =====================================================
-   HERO
+   LAYOUT + HERO
 ===================================================== */
 .layout{
   padding:22px;
@@ -257,6 +247,8 @@ html,body{
   animation:fadeUp 0.7s ease;
   position:relative;
   overflow:hidden;
+  max-width:900px;
+  margin:0 auto;
 }
 
 .hero::after{
@@ -315,13 +307,17 @@ html,body{
 }
 
 /* =====================================================
-   APPS GRID (CARDS WITH 3D TILT)
+   APPS (VERTICAL LIST VIEW)
 ===================================================== */
 .apps{
   margin-top:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-  gap:16px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  width:100%;
+  max-width:750px;
+  margin-left:auto;
+  margin-right:auto;
 }
 
 .app{
@@ -335,7 +331,7 @@ html,body{
   position:relative;
   overflow:hidden;
   animation:fadeUp 0.7s ease;
-  transform-style:preserve-3d;
+  min-height:95px;
 }
 
 .app::before{
@@ -363,7 +359,7 @@ html,body{
 .app:hover::after{ opacity:1; }
 
 .app:hover{
-  transform:translateY(-10px) scale(1.03);
+  transform:translateY(-7px) scale(1.02);
   border-color:rgba(0,170,255,0.60);
   box-shadow:0 0 70px rgba(0,170,255,0.18);
 }
@@ -468,7 +464,6 @@ html,body{
   overflow:auto;
 }
 
-/* Scrollbar */
 .panel-content::-webkit-scrollbar{
   width:10px;
 }
@@ -509,7 +504,9 @@ button:hover{
   box-shadow:0 0 35px rgba(0,170,255,0.18);
 }
 
-/* Loader */
+/* =====================================================
+   LOADER
+===================================================== */
 .loader{
   width:42px;
   height:42px;
@@ -526,7 +523,7 @@ button:hover{
 }
 
 /* =====================================================
-   EMMY (NEON VISIBLE)
+   EMMY (NEON GUIDE)
 ===================================================== */
 .emy{
   position:fixed;
