@@ -5,16 +5,13 @@ const panelContent = document.getElementById("panelContent");
 const emyBubble = document.getElementById("emyBubble");
 const appsDiv = document.getElementById("apps");
 
-function emy(text){
+/* ---------------- Emmy ---------------- */
+function emy(text) {
   emyBubble.innerText = text;
 }
 
-function loaderHTML(){
-  return `<div class="loader"></div>`;
-}
-
-/* Clock */
-function updateClock(){
+/* ---------------- Clock ---------------- */
+function updateClock() {
   clock.innerText = new Date().toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -24,166 +21,194 @@ function updateClock(){
 setInterval(updateClock, 1000);
 updateClock();
 
-/* Theme */
-function toggleTheme(){
-  if(document.documentElement.getAttribute("data-theme") === "light"){
+/* ---------------- Theme Toggle ---------------- */
+function toggleTheme() {
+  if (document.documentElement.getAttribute("data-theme") === "light") {
     document.documentElement.removeAttribute("data-theme");
     emy("Dark Neon Mode activated.");
   } else {
-    document.documentElement.setAttribute("data-theme","light");
+    document.documentElement.setAttribute("data-theme", "light");
     emy("Light Mode activated.");
   }
 }
 
-/* Apps */
+/* ---------------- Loader ---------------- */
+function loader() {
+  return `<div class="loader"></div>`;
+}
+
+/* ---------------- Apps List ---------------- */
 const apps = [
-  {id:"weather", title:"🌦 Weather Forecast", desc:"Live weather using Open-Meteo API.", badge:"API"},
-  {id:"air", title:"🌫 Air Quality Monitor", desc:"AQI & pollution using Open-Meteo API.", badge:"API"},
-  {id:"crypto", title:"💠 Crypto Tracker", desc:"Live crypto prices using CoinGecko API.", badge:"LIVE"},
-  {id:"country", title:"🌍 Country Intelligence", desc:"Country scanner using REST Countries API.", badge:"API"},
-  {id:"wiki", title:"📚 Wikipedia Search", desc:"Knowledge engine powered by Wikipedia API.", badge:"WIKI"},
-  {id:"news", title:"📰 Fake News Analyzer", desc:"Wikipedia + clickbait signal analyzer.", badge:"AI"},
-  {id:"earthquake", title:"🌍 Earthquake Radar", desc:"Latest earthquakes worldwide (USGS API).", badge:"LIVE"},
-  {id:"iss", title:"🛰 ISS Tracker", desc:"Track ISS live using HTTPS satellite API.", badge:"SPACE"},
-  {id:"spacex", title:"🚀 SpaceX Launch Tracker", desc:"Upcoming SpaceX launch information.", badge:"SPACE"},
-  {id:"timezone", title:"🕒 Timezone Explorer", desc:"Check timezones using WorldTimeAPI.", badge:"TIME"},
-  {id:"location", title:"📡 Auto Location Scanner", desc:"Detect your approximate location via IP.", badge:"LIVE"},
-  {id:"credits", title:"⚡ System Credits", desc:"Final page.", badge:"END"}
+  { id: "weather", title: "🌦 Weather Forecast", desc: "Live weather (Open-Meteo).", badge: "API" },
+  { id: "air", title: "🌫 Air Quality", desc: "Pollution scan (Open-Meteo).", badge: "API" },
+  { id: "crypto", title: "💠 Crypto Tracker", desc: "Live crypto prices (CoinGecko).", badge: "LIVE" },
+  { id: "wiki", title: "📚 Wikipedia Search", desc: "Search any topic instantly.", badge: "WIKI" },
+  { id: "country", title: "🌍 Country Intelligence", desc: "Scan country info (REST Countries).", badge: "API" },
+  { id: "earthquake", title: "🌍 Earthquake Radar", desc: "Latest earthquakes (USGS).", badge: "LIVE" },
+  { id: "iss", title: "🛰 ISS Tracker", desc: "Track ISS live (HTTPS).", badge: "SPACE" },
+  { id: "spacex", title: "🚀 SpaceX Tracker", desc: "Upcoming launch info (SpaceX API).", badge: "SPACE" },
+  { id: "fake", title: "📰 Fake News Analyzer", desc: "Wikipedia + clickbait detection.", badge: "AI" },
+  { id: "credits", title: "⚡ Credits", desc: "Final page.", badge: "END" }
 ];
 
-function renderApps(){
+/* ---------------- Render Apps ---------------- */
+function renderApps() {
   appsDiv.innerHTML = "";
-  apps.forEach(app=>{
+  apps.forEach(app => {
     const card = document.createElement("div");
     card.className = "app";
-    card.onclick = ()=>openPanel(app.id);
+    card.onclick = () => openPanel(app.id);
 
     card.innerHTML = `
       <h2>${app.title}</h2>
       <p>${app.desc}</p>
       <span class="badge">${app.badge}</span>
     `;
-
     appsDiv.appendChild(card);
   });
 }
 
 renderApps();
 
-/* Panel */
-function openPanel(app){
+/* ---------------- Panel System ---------------- */
+function openPanel(appId) {
   panel.classList.remove("hidden");
 
-  if(app==="weather"){
+  if (appId === "weather") {
     panelTitle.innerText = "Weather Forecast";
-    panelContent.innerHTML = weatherHTML();
-    emy("Type a city name to get live weather.");
+    panelContent.innerHTML = `
+      <h3>Weather Forecast</h3>
+      <input id="weatherCity" placeholder="City (Tokyo, Delhi, London)" />
+      <button onclick="getWeather()">Scan Weather</button>
+      <div id="weatherResult" style="margin-top:14px;">---</div>
+    `;
+    emy("Type a city name and scan the weather.");
   }
 
-  if(app==="air"){
+  if (appId === "air") {
     panelTitle.innerText = "Air Quality Monitor";
-    panelContent.innerHTML = airHTML();
-    emy("Check AQI and pollution levels.");
+    panelContent.innerHTML = `
+      <h3>Air Quality Monitor</h3>
+      <input id="airCity" placeholder="City (Paris, Dubai, Seoul)" />
+      <button onclick="getAir()">Scan Air</button>
+      <div id="airResult" style="margin-top:14px;">---</div>
+    `;
+    emy("Check PM2.5, PM10, ozone and more.");
   }
 
-  if(app==="crypto"){
+  if (appId === "crypto") {
     panelTitle.innerText = "Crypto Tracker";
-    panelContent.innerHTML = cryptoHTML();
+    panelContent.innerHTML = `
+      <h3>Crypto Tracker</h3>
+      <div id="cryptoResult" style="margin-top:14px;">${loader()}</div>
+      <button onclick="loadCrypto()">Refresh Prices</button>
+    `;
     loadCrypto();
-    emy("Fetching live crypto prices...");
+    emy("Fetching crypto prices...");
   }
 
-  if(app==="country"){
-    panelTitle.innerText = "Country Intelligence";
-    panelContent.innerHTML = countryHTML();
-    emy("Search a country (America works too).");
-  }
-
-  if(app==="wiki"){
+  if (appId === "wiki") {
     panelTitle.innerText = "Wikipedia Search";
-    panelContent.innerHTML = wikiHTML();
-    emy("Search anything from Wikipedia.");
+    panelContent.innerHTML = `
+      <h3>Wikipedia Search</h3>
+      <input id="wikiInput" placeholder="Plastic, AI, Universe..." />
+      <button onclick="wikiSearch()">Search</button>
+      <div id="wikiResult" style="margin-top:14px;">---</div>
+    `;
+    emy("Search any topic like a futuristic encyclopedia.");
   }
 
-  if(app==="news"){
-    panelTitle.innerText = "Fake News Analyzer";
-    panelContent.innerHTML = fakeNewsHTML();
-    emy("Paste a headline. I will analyze it.");
+  if (appId === "country") {
+    panelTitle.innerText = "Country Intelligence";
+    panelContent.innerHTML = `
+      <h3>Country Intelligence</h3>
+      <input id="countryInput" placeholder="India, America, Japan..." />
+      <button onclick="scanCountry()">Scan Country</button>
+      <div id="countryResult" style="margin-top:14px;">---</div>
+    `;
+    emy("Try typing America, India, France...");
   }
 
-  if(app==="earthquake"){
+  if (appId === "earthquake") {
     panelTitle.innerText = "Earthquake Radar";
-    panelContent.innerHTML = earthquakeHTML();
+    panelContent.innerHTML = `
+      <h3>Earthquake Radar</h3>
+      <p style="opacity:0.8;">Latest earthquakes in the last 24 hours.</p>
+      <div id="quakeResult" style="margin-top:14px;">${loader()}</div>
+      <button onclick="loadEarthquakes()">Refresh Feed</button>
+    `;
     loadEarthquakes();
     emy("Loading earthquake feed...");
   }
 
-  if(app==="iss"){
+  if (appId === "iss") {
     panelTitle.innerText = "ISS Tracker";
-    panelContent.innerHTML = issHTML();
+    panelContent.innerHTML = `
+      <h3>ISS Tracker</h3>
+      <div id="issResult" style="margin-top:14px;">${loader()}</div>
+      <button onclick="loadISS()">Refresh Location</button>
+    `;
     loadISS();
-    emy("Tracking International Space Station...");
+    emy("Tracking the ISS...");
   }
 
-  if(app==="spacex"){
-    panelTitle.innerText = "SpaceX Launch Tracker";
-    panelContent.innerHTML = spacexHTML();
+  if (appId === "spacex") {
+    panelTitle.innerText = "SpaceX Tracker";
+    panelContent.innerHTML = `
+      <h3>SpaceX Launch Tracker</h3>
+      <div id="spacexResult" style="margin-top:14px;">${loader()}</div>
+      <button onclick="loadSpaceX()">Refresh Launch</button>
+    `;
     loadSpaceX();
-    emy("Fetching SpaceX launch data...");
+    emy("Fetching SpaceX launch...");
   }
 
-  if(app==="timezone"){
-    panelTitle.innerText = "Timezone Explorer";
-    panelContent.innerHTML = timezoneHTML();
-    emy("Type timezone like Asia/Kolkata.");
+  if (appId === "fake") {
+    panelTitle.innerText = "Fake News Analyzer";
+    panelContent.innerHTML = `
+      <h3>Fake News Analyzer</h3>
+      <textarea id="newsInput" style="height:140px;" placeholder="Paste headline or paragraph..."></textarea>
+      <button onclick="analyzeNews()">Analyze</button>
+      <div id="newsResult" style="margin-top:14px;">---</div>
+    `;
+    emy("Paste a headline and I will scan patterns.");
   }
 
-  if(app==="location"){
-    panelTitle.innerText = "Auto Location Scanner";
-    panelContent.innerHTML = locationHTML();
-    detectLocation();
-    emy("Scanning your network location...");
-  }
-
-  if(app==="credits"){
+  if (appId === "credits") {
     panelTitle.innerText = "Credits";
-    panelContent.innerHTML = creditsHTML();
+    panelContent.innerHTML = `
+      <div style="text-align:center;margin-top:60px;">
+        <h1 style="font-weight:950;letter-spacing:2px;">Created by Saanvi</h1>
+        <p style="opacity:0.7;margin-top:10px;">NeuraLib OS X • Neon Cyber Edition</p>
+      </div>
+    `;
     emy("Thanks for exploring NeuraLib OS X.");
   }
 }
 
-function closePanel(){
+function closePanel() {
   panel.classList.add("hidden");
-  emy("Select another futuristic tool.");
+  emy("Choose another futuristic tool.");
 }
 
-/* WEATHER */
-function weatherHTML(){
-  return `
-    <h3>Weather Forecast</h3>
-    <input id="weatherCity" placeholder="City (Tokyo, London, Delhi)" />
-    <button onclick="getWeather()">Scan Weather</button>
-    <div id="weatherResult" style="margin-top:14px;">---</div>
-  `;
-}
-
-async function getWeather(){
+/* ---------------- WEATHER ---------------- */
+async function getWeather() {
   const city = document.getElementById("weatherCity").value.trim();
   const out = document.getElementById("weatherResult");
 
-  if(!city){
+  if (!city) {
     out.innerText = "Type a city first.";
     return;
   }
 
-  out.innerHTML = loaderHTML();
+  out.innerHTML = loader();
 
-  try{
+  try {
     const geoURL = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`;
     const geoRes = await fetch(geoURL);
     const geoData = await geoRes.json();
 
-    if(!geoData.results || geoData.results.length === 0){
+    if (!geoData.results || geoData.results.length === 0) {
       out.innerText = "City not found.";
       return;
     }
@@ -202,40 +227,30 @@ async function getWeather(){
       <p>💨 Wind: <b>${wData.current.wind_speed_10m} km/h</b></p>
       <p>💧 Humidity: <b>${wData.current.relative_humidity_2m}%</b></p>
     `;
-
-    emy("Weather scan completed.");
+    emy("Weather scan complete.");
   } catch {
     out.innerText = "Weather API failed.";
   }
 }
 
-/* AIR */
-function airHTML(){
-  return `
-    <h3>Air Quality Monitor</h3>
-    <input id="airCity" placeholder="City (Paris, Dubai, Seoul)" />
-    <button onclick="getAir()">Scan Air</button>
-    <div id="airResult" style="margin-top:14px;">---</div>
-  `;
-}
-
-async function getAir(){
+/* ---------------- AIR QUALITY ---------------- */
+async function getAir() {
   const city = document.getElementById("airCity").value.trim();
   const out = document.getElementById("airResult");
 
-  if(!city){
+  if (!city) {
     out.innerText = "Type a city first.";
     return;
   }
 
-  out.innerHTML = loaderHTML();
+  out.innerHTML = loader();
 
-  try{
+  try {
     const geoURL = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`;
     const geoRes = await fetch(geoURL);
     const geoData = await geoRes.json();
 
-    if(!geoData.results || geoData.results.length === 0){
+    if (!geoData.results || geoData.results.length === 0) {
       out.innerText = "City not found.";
       return;
     }
@@ -244,7 +259,7 @@ async function getAir(){
     const lat = place.latitude;
     const lon = place.longitude;
 
-    const airURL = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone`;
+    const airURL = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,ozone,nitrogen_dioxide,carbon_monoxide`;
     const airRes = await fetch(airURL);
     const airData = await airRes.json();
 
@@ -252,100 +267,113 @@ async function getAir(){
       <h3>${place.name}, ${place.country}</h3>
       <p>🫁 PM2.5: <b>${airData.current.pm2_5}</b></p>
       <p>🌫 PM10: <b>${airData.current.pm10}</b></p>
-      <p>⚠ CO: <b>${airData.current.carbon_monoxide}</b></p>
-      <p>🚗 NO2: <b>${airData.current.nitrogen_dioxide}</b></p>
       <p>☀ Ozone: <b>${airData.current.ozone}</b></p>
+      <p>🚗 NO2: <b>${airData.current.nitrogen_dioxide}</b></p>
+      <p>⚠ CO: <b>${airData.current.carbon_monoxide}</b></p>
     `;
-
-    emy("Air scan completed.");
+    emy("Air scan complete.");
   } catch {
-    out.innerText = "Air quality API failed.";
+    out.innerText = "Air API failed.";
   }
 }
 
-/* CRYPTO */
-function cryptoHTML(){
-  return `
-    <h3>Crypto Tracker</h3>
-    <div id="cryptoResult" style="margin-top:14px;">${loaderHTML()}</div>
-    <button onclick="loadCrypto()">Refresh Prices</button>
-  `;
-}
-
-async function loadCrypto(){
+/* ---------------- CRYPTO ---------------- */
+async function loadCrypto() {
   const out = document.getElementById("cryptoResult");
-  out.innerHTML = loaderHTML();
+  out.innerHTML = loader();
 
-  try{
-    const url="https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,dogecoin&vs_currencies=usd";
-    const res=await fetch(url);
-    const data=await res.json();
+  try {
+    const url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,dogecoin&vs_currencies=usd";
+    const res = await fetch(url);
+    const data = await res.json();
 
-    out.innerHTML=`
+    out.innerHTML = `
       <p>₿ Bitcoin: <b>$${data.bitcoin.usd}</b></p>
       <p>♦ Ethereum: <b>$${data.ethereum.usd}</b></p>
       <p>◎ Solana: <b>$${data.solana.usd}</b></p>
       <p>🐶 Dogecoin: <b>$${data.dogecoin.usd}</b></p>
     `;
-
-    emy("Crypto feed updated.");
-  }catch{
-    out.innerText="Crypto API failed.";
+    emy("Crypto updated.");
+  } catch {
+    out.innerText = "Crypto API failed.";
   }
 }
 
-/* COUNTRY */
-function countryHTML(){
-  return `
-    <h3>Country Intelligence Scanner</h3>
-    <input id="countryInput" placeholder="India, America, Japan, France..." />
-    <button onclick="scanCountry()">Scan Country</button>
-    <div id="countryResult" style="margin-top:14px;">---</div>
-  `;
+/* ---------------- WIKIPEDIA ---------------- */
+async function wikiSearch() {
+  const input = document.getElementById("wikiInput").value.trim();
+  const out = document.getElementById("wikiResult");
+
+  if (!input) {
+    out.innerText = "Type something first.";
+    return;
+  }
+
+  out.innerHTML = loader();
+
+  try {
+    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(input)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.type && data.type.includes("not_found")) {
+      out.innerText = "No Wikipedia result found.";
+      return;
+    }
+
+    out.innerHTML = `
+      <h3>${data.title}</h3>
+      <p style="margin-top:10px;line-height:1.6;">${data.extract}</p>
+    `;
+    emy("Wikipedia result loaded.");
+  } catch {
+    out.innerText = "Wikipedia API failed.";
+  }
 }
 
-async function scanCountry(){
+/* ---------------- COUNTRY ---------------- */
+async function scanCountry() {
   let input = document.getElementById("countryInput").value.trim();
   const out = document.getElementById("countryResult");
 
-  if(!input){
-    out.innerText="Type a country name.";
+  if (!input) {
+    out.innerText = "Type a country first.";
     return;
   }
 
   const aliases = {
-    "america":"United States",
-    "usa":"United States",
-    "u.s.a":"United States",
-    "uk":"United Kingdom",
-    "england":"United Kingdom"
+    "america": "United States",
+    "usa": "United States",
+    "u.s.a": "United States",
+    "uk": "United Kingdom",
+    "england": "United Kingdom"
   };
 
   const lower = input.toLowerCase();
-  if(aliases[lower]) input = aliases[lower];
+  if (aliases[lower]) input = aliases[lower];
 
-  out.innerHTML = loaderHTML();
+  out.innerHTML = loader();
 
-  try{
-    const url=`https://restcountries.com/v3.1/name/${encodeURIComponent(input)}?fullText=true`;
-    const res=await fetch(url);
+  try {
+    const url = `https://restcountries.com/v3.1/name/${encodeURIComponent(input)}?fullText=true`;
+    const res = await fetch(url);
 
-    if(!res.ok){
-      out.innerText="Country not found.";
+    if (!res.ok) {
+      out.innerText = "Country not found.";
       return;
     }
 
-    const data=await res.json();
-    const c=data[0];
+    const data = await res.json();
+    const c = data[0];
 
-    const name=c.name.common;
-    const capital=c.capital ? c.capital[0] : "N/A";
-    const population=c.population ? c.population.toLocaleString() : "N/A";
-    const region=c.region || "N/A";
-    const currency=c.currencies ? Object.keys(c.currencies)[0] : "N/A";
-    const languages=c.languages ? Object.values(c.languages).join(", ") : "N/A";
+    const name = c.name.common;
+    const capital = c.capital ? c.capital[0] : "N/A";
+    const population = c.population ? c.population.toLocaleString() : "N/A";
+    const region = c.region || "N/A";
+    const currency = c.currencies ? Object.keys(c.currencies)[0] : "N/A";
+    const languages = c.languages ? Object.values(c.languages).join(", ") : "N/A";
 
-    out.innerHTML=`
+    out.innerHTML = `
       <h3>${name}</h3>
       <p>🏛 Capital: <b>${capital}</b></p>
       <p>🌍 Region: <b>${region}</b></p>
@@ -353,323 +381,160 @@ async function scanCountry(){
       <p>💰 Currency: <b>${currency}</b></p>
       <p>🗣 Languages: <b>${languages}</b></p>
     `;
-
-    emy("Country scan completed.");
-  }catch{
-    out.innerText="Country API failed.";
+    emy("Country scan complete.");
+  } catch {
+    out.innerText = "Country API failed.";
   }
 }
 
-/* WIKI */
-function wikiHTML(){
-  return `
-    <h3>Wikipedia Search Engine</h3>
-    <input id="wikiInput" placeholder="AI, Plastic, Universe..." />
-    <button onclick="wikiSearch()">Search</button>
-    <div id="wikiResult" style="margin-top:14px;">---</div>
-  `;
-}
+/* ---------------- EARTHQUAKE ---------------- */
+async function loadEarthquakes() {
+  const out = document.getElementById("quakeResult");
+  out.innerHTML = loader();
 
-async function wikiSearch(){
-  const input=document.getElementById("wikiInput").value.trim();
-  const out=document.getElementById("wikiResult");
+  try {
+    const url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
+    const res = await fetch(url);
+    const data = await res.json();
 
-  if(!input){
-    out.innerText="Type something first.";
-    return;
-  }
-
-  out.innerHTML = loaderHTML();
-
-  try{
-    const url=`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(input)}`;
-    const res=await fetch(url);
-    const data=await res.json();
-
-    if(data.type && data.type.includes("not_found")){
-      out.innerText="No Wikipedia results.";
-      return;
-    }
-
-    out.innerHTML=`
-      <h3>${data.title}</h3>
-      <p style="margin-top:10px;line-height:1.6;">${data.extract}</p>
-    `;
-
-    emy("Knowledge extracted.");
-  }catch{
-    out.innerText="Wikipedia API failed.";
-  }
-}
-
-/* FAKE NEWS */
-function fakeNewsHTML(){
-  return `
-    <h3>Fake News Analyzer</h3>
-    <textarea id="newsInput" style="height:140px;" placeholder="Paste headline or paragraph..."></textarea>
-    <button onclick="analyzeNews()">Analyze</button>
-    <div id="newsResult" style="margin-top:14px;">---</div>
-  `;
-}
-
-async function analyzeNews(){
-  const inputRaw=document.getElementById("newsInput").value.trim();
-  const input=inputRaw.toLowerCase();
-  const out=document.getElementById("newsResult");
-
-  if(!inputRaw){
-    out.innerText="Paste something first.";
-    return;
-  }
-
-  out.innerHTML = loaderHTML();
-
-  let score=85;
-  let signals=[];
-
-  const clickbait=["shocking","unbelievable","secret","exposed","miracle","breaking","you won't believe","truth revealed"];
-  const conspiracy=["government hiding","deep state","cover-up","agenda","brainwashing"];
-
-  clickbait.forEach(w=>{
-    if(input.includes(w)){
-      score -= 12;
-      signals.push("Clickbait keyword: " + w);
-    }
-  });
-
-  conspiracy.forEach(w=>{
-    if(input.includes(w)){
-      score -= 18;
-      signals.push("Conspiracy phrase: " + w);
-    }
-  });
-
-  const exclamations=(inputRaw.match(/!/g)||[]).length;
-  if(exclamations>=3){
-    score -= 15;
-    signals.push("Too many exclamation marks.");
-  }
-
-  if(inputRaw.length < 70){
-    score -= 10;
-    signals.push("Very short headline (low context).");
-  }
-
-  try{
-    const topic=inputRaw.split(" ").slice(0,6).join(" ");
-    const wikiURL=`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
-    const wikiRes=await fetch(wikiURL);
-    const wikiData=await wikiRes.json();
-
-    if(wikiData.extract){
-      score += 12;
-      signals.push("Wikipedia has related information.");
-    }else{
-      score -= 15;
-      signals.push("Wikipedia could not confirm topic.");
-    }
-  }catch{
-    signals.push("Wikipedia verification failed.");
-  }
-
-  if(score>100) score=100;
-  if(score<0) score=0;
-
-  let status="Likely Trustworthy";
-  if(score<65) status="Suspicious / Misleading";
-  if(score<45) status="High Fake Risk";
-
-  out.innerHTML=`
-    <h2>Trust Score: ${score}/100</h2>
-    <p><b>Status:</b> ${status}</p>
-
-    <h3 style="margin-top:12px;">Signals</h3>
-    <ul style="margin-top:10px;padding-left:20px;line-height:1.6;">
-      ${signals.length ? signals.map(s=>`<li>${s}</li>`).join("") : "<li>No suspicious patterns found.</li>"}
-    </ul>
-
-    <p style="margin-top:12px;opacity:0.7;font-size:12px;">
-      This is a heuristic analyzer, not an official fact-checker.
-    </p>
-  `;
-
-  emy("Fake news analysis complete.");
-}
-
-/* EARTHQUAKE */
-function earthquakeHTML(){
-  return `
-    <h3>Earthquake Radar</h3>
-    <p style="opacity:0.8;">Latest earthquakes worldwide (24h).</p>
-    <div id="quakeResult" style="margin-top:14px;">${loaderHTML()}</div>
-    <button onclick="loadEarthquakes()">Refresh Feed</button>
-  `;
-}
-
-async function loadEarthquakes(){
-  const out=document.getElementById("quakeResult");
-  out.innerHTML = loaderHTML();
-
-  try{
-    const url="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
-    const res=await fetch(url);
-    const data=await res.json();
-
-    const list=data.features.slice(0,10).map(q=>{
+    const list = data.features.slice(0, 12).map(q => {
       return `<li><b>M${q.properties.mag}</b> — ${q.properties.place}</li>`;
     }).join("");
 
-    out.innerHTML=`<ul style="padding-left:20px;line-height:1.6;">${list}</ul>`;
-    emy("Earthquake feed updated.");
-  }catch{
-    out.innerText="Earthquake API failed.";
+    out.innerHTML = `<ul style="padding-left:20px;line-height:1.6;">${list}</ul>`;
+    emy("Earthquake feed loaded.");
+  } catch {
+    out.innerText = "Earthquake API failed.";
   }
 }
 
-/* ISS */
-function issHTML(){
-  return `
-    <h3>ISS Tracker</h3>
-    <div id="issResult" style="margin-top:14px;">${loaderHTML()}</div>
-    <button onclick="loadISS()">Refresh Location</button>
-  `;
-}
+/* ---------------- ISS ---------------- */
+async function loadISS() {
+  const out = document.getElementById("issResult");
+  out.innerHTML = loader();
 
-async function loadISS(){
-  const out=document.getElementById("issResult");
-  out.innerHTML = loaderHTML();
+  try {
+    const url = "https://api.wheretheiss.at/v1/satellites/25544";
+    const res = await fetch(url);
+    const data = await res.json();
 
-  try{
-    const url="https://api.wheretheiss.at/v1/satellites/25544";
-    const res=await fetch(url);
-    const data=await res.json();
-
-    out.innerHTML=`
+    out.innerHTML = `
       <p>Latitude: <b>${data.latitude.toFixed(3)}</b></p>
       <p>Longitude: <b>${data.longitude.toFixed(3)}</b></p>
       <p>Altitude: <b>${Math.round(data.altitude)} km</b></p>
       <p>Velocity: <b>${Math.round(data.velocity)} km/h</b></p>
     `;
-
-    emy("ISS coordinates updated.");
-  }catch{
-    out.innerText="ISS API failed.";
+    emy("ISS location updated.");
+  } catch {
+    out.innerText = "ISS API failed.";
   }
 }
 
-/* SpaceX */
-function spacexHTML(){
-  return `
-    <h3>SpaceX Launch Tracker</h3>
-    <div id="spacexResult" style="margin-top:14px;">${loaderHTML()}</div>
-    <button onclick="loadSpaceX()">Refresh Launch</button>
-  `;
-}
+/* ---------------- SpaceX ---------------- */
+async function loadSpaceX() {
+  const out = document.getElementById("spacexResult");
+  out.innerHTML = loader();
 
-async function loadSpaceX(){
-  const out=document.getElementById("spacexResult");
-  out.innerHTML = loaderHTML();
+  try {
+    const url = "https://api.spacexdata.com/v4/launches/next";
+    const res = await fetch(url);
+    const data = await res.json();
 
-  try{
-    const url="https://api.spacexdata.com/v4/launches/next";
-    const res=await fetch(url);
-    const data=await res.json();
-
-    out.innerHTML=`
+    out.innerHTML = `
       <h3>${data.name}</h3>
       <p>📅 Launch Date: <b>${new Date(data.date_utc).toLocaleString()}</b></p>
       <p style="margin-top:10px;line-height:1.6;">
         ${data.details ? data.details : "No mission details available."}
       </p>
     `;
-
-    emy("SpaceX launch data loaded.");
-  }catch{
-    out.innerText="SpaceX API failed.";
+    emy("SpaceX launch loaded.");
+  } catch {
+    out.innerText = "SpaceX API failed.";
   }
 }
 
-/* Timezone */
-function timezoneHTML(){
-  return `
-    <h3>Timezone Explorer</h3>
-    <input id="tzInput" placeholder="Asia/Kolkata, Europe/London..." />
-    <button onclick="checkTimezone()">Check Time</button>
-    <div id="tzResult" style="margin-top:14px;">---</div>
-  `;
-}
+/* ---------------- Fake News Analyzer ---------------- */
+async function analyzeNews() {
+  const inputRaw = document.getElementById("newsInput").value.trim();
+  const input = inputRaw.toLowerCase();
+  const out = document.getElementById("newsResult");
 
-async function checkTimezone(){
-  const tz=document.getElementById("tzInput").value.trim();
-  const out=document.getElementById("tzResult");
-
-  if(!tz){
-    out.innerText="Type a timezone first.";
+  if (!inputRaw) {
+    out.innerText = "Paste a headline first.";
     return;
   }
 
-  out.innerHTML = loaderHTML();
+  out.innerHTML = loader();
 
-  try{
-    const url=`https://worldtimeapi.org/api/timezone/${encodeURIComponent(tz)}`;
-    const res=await fetch(url);
-    const data=await res.json();
+  let score = 85;
+  let signals = [];
 
-    if(data.error){
-      out.innerText="Timezone not found.";
-      return;
+  const clickbait = ["shocking", "unbelievable", "secret", "exposed", "miracle", "you won't believe", "truth revealed"];
+  const conspiracy = ["deep state", "cover-up", "agenda", "government hiding", "brainwashing"];
+
+  clickbait.forEach(word => {
+    if (input.includes(word)) {
+      score -= 12;
+      signals.push("Clickbait keyword detected: " + word);
     }
+  });
 
-    out.innerHTML=`
-      <p><b>Timezone:</b> ${data.timezone}</p>
-      <p><b>Current Time:</b> ${new Date(data.datetime).toLocaleString()}</p>
-      <p><b>UTC Offset:</b> ${data.utc_offset}</p>
-    `;
+  conspiracy.forEach(word => {
+    if (input.includes(word)) {
+      score -= 18;
+      signals.push("Conspiracy phrase detected: " + word);
+    }
+  });
 
-    emy("Timezone scan complete.");
-  }catch{
-    out.innerText="Timezone API failed.";
+  const exclamations = (inputRaw.match(/!/g) || []).length;
+  if (exclamations >= 3) {
+    score -= 14;
+    signals.push("Too many exclamation marks.");
   }
-}
 
-/* Location */
-function locationHTML(){
-  return `
-    <h3>Auto Location Scanner</h3>
-    <div id="locResult" style="margin-top:14px;">${loaderHTML()}</div>
-    <button onclick="detectLocation()">Rescan</button>
-  `;
-}
-
-async function detectLocation(){
-  const out=document.getElementById("locResult");
-  out.innerHTML = loaderHTML();
-
-  try{
-    const res=await fetch("https://ipapi.co/json/");
-    const data=await res.json();
-
-    out.innerHTML=`
-      <p>📍 City: <b>${data.city}</b></p>
-      <p>🌍 Country: <b>${data.country_name}</b></p>
-      <p>📡 IP: <b>${data.ip}</b></p>
-      <p>🕒 Timezone: <b>${data.timezone}</b></p>
-    `;
-
-    emy("Location scan completed.");
-  }catch{
-    out.innerText="Location API failed.";
+  if (inputRaw.length < 70) {
+    score -= 10;
+    signals.push("Very short headline (low context).");
   }
-}
 
-/* Credits */
-function creditsHTML(){
-  return `
-    <div style="text-align:center;margin-top:60px;">
-      <h1 style="font-weight:950;letter-spacing:2px;">Created by Saanvi</h1>
-      <p style="opacity:0.7;margin-top:10px;">NeuraLib OS X • Neon Cyber Edition</p>
-    </div>
+  try {
+    const topic = inputRaw.split(" ").slice(0, 6).join(" ");
+    const wikiURL = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+    const wikiRes = await fetch(wikiURL);
+    const wikiData = await wikiRes.json();
+
+    if (wikiData.extract) {
+      score += 12;
+      signals.push("Wikipedia contains related topic.");
+    } else {
+      score -= 15;
+      signals.push("Wikipedia did not confirm topic.");
+    }
+  } catch {
+    signals.push("Wikipedia verification failed.");
+  }
+
+  if (score > 100) score = 100;
+  if (score < 0) score = 0;
+
+  let status = "Likely Trustworthy";
+  if (score < 65) status = "Suspicious / Misleading";
+  if (score < 45) status = "High Fake News Risk";
+
+  out.innerHTML = `
+    <h2>Trust Score: ${score}/100</h2>
+    <p><b>Status:</b> ${status}</p>
+    <h3 style="margin-top:12px;">Signals</h3>
+    <ul style="margin-top:10px;padding-left:20px;line-height:1.6;">
+      ${signals.length ? signals.map(s => `<li>${s}</li>`).join("") : "<li>No suspicious patterns found.</li>"}
+    </ul>
+    <p style="margin-top:12px;opacity:0.7;font-size:12px;">
+      This is a heuristic analyzer, not a real fact-checker.
+    </p>
   `;
+
+  emy("Fake news analysis complete.");
 }
 
-emy("Welcome to NeuraLib OS X Pro. Select an API tool.");
+/* Startup */
+emy("NeuraLib OS X loaded. Choose an API tool.");
