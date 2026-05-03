@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NeuraLib OS X v3</title>
-  <link rel="stylesheet" href="./style.css" />
+  <title>NeuraLib OS X Pro</title>
+
+  <!-- FIXED PATH -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <!-- Animated Neon Background -->
+  <!-- Background -->
   <div class="bg">
     <div class="bg-grid"></div>
     <div class="bg-orb orb1"></div>
@@ -26,8 +28,78 @@
       <div class="brand-dot"></div>
       <div class="brand-text">
         <span class="brand-title">NEURALIB OS X</span>
-        <span class="brand-sub">NEON CYBER INTERFACE • v3</span>
+        <span class="brand-sub">NEON CYBER INTERFACE</span>
       </div>
     </div>
 
-    <div
+    <div class="top-right">
+      <button class="miniBtn" onclick="toggleTheme()">Mode</button>
+      <div class="clock" id="clock">--:--</div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="layout">
+
+    <section class="hero">
+      <h1>NeuraLib OS X</h1>
+      <p>
+        Futuristic neon dashboard powered by real APIs.
+        Weather • Air Quality • Crypto • Wikipedia • SpaceX • ISS • Earthquakes • Country Scanner.
+      </p>
+
+      <div class="hero-tags">
+        <span>⚡ Neon Blue</span>
+        <span>🖤 Vintage Black</span>
+        <span>🌐 Live APIs</span>
+        <span>🚀 SpaceX</span>
+        <span>🛰 ISS</span>
+      </div>
+    </section>
+
+    <!-- Apps -->
+    <section class="apps" id="apps"></section>
+
+  </main>
+
+  <!-- Panel -->
+  <div class="panel hidden" id="panel">
+    <div class="panel-inner">
+      <div class="panel-top">
+        <h2 id="panelTitle">App</h2>
+        <button class="closeBtn" onclick="closePanel()">✕</button>
+      </div>
+
+      <div class="panel-content" id="panelContent"></div>
+    </div>
+  </div>
+
+  <!-- Emmy -->
+  <div class="emy">
+    <div class="emy-bubble" id="emyBubble">Hi, I'm Emmy — your neon guide.</div>
+
+    <div class="emy-body">
+      <div class="emy-face">
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+
+        <div class="lash left"></div>
+        <div class="lash right"></div>
+
+        <div class="blush left"></div>
+        <div class="blush right"></div>
+
+        <div class="beak"></div>
+      </div>
+
+      <div class="wing left"></div>
+      <div class="wing right"></div>
+      <div class="tail"></div>
+    </div>
+  </div>
+
+  <!-- FIXED PATH -->
+  <script src="script.js"></script>
+
+</body>
+</html>
