@@ -9,6 +9,10 @@ function emy(text){
   emyBubble.innerText = text;
 }
 
+function loaderHTML(){
+  return `<div class="loader"></div>`;
+}
+
 /* Clock */
 function updateClock(){
   clock.innerText = new Date().toLocaleTimeString("en-US", {
@@ -36,13 +40,13 @@ const apps = [
   {id:"weather", title:"🌦 Weather Forecast", desc:"Live weather using Open-Meteo API.", badge:"API"},
   {id:"air", title:"🌫 Air Quality Monitor", desc:"AQI & pollution using Open-Meteo API.", badge:"API"},
   {id:"crypto", title:"💠 Crypto Tracker", desc:"Live crypto prices using CoinGecko API.", badge:"LIVE"},
-  {id:"country", title:"🌍 Country Intelligence", desc:"Scan country details using REST Countries API.", badge:"API"},
+  {id:"country", title:"🌍 Country Intelligence", desc:"Country scanner using REST Countries API.", badge:"API"},
   {id:"wiki", title:"📚 Wikipedia Search", desc:"Knowledge engine powered by Wikipedia API.", badge:"WIKI"},
-  {id:"news", title:"📰 Fake News Analyzer", desc:"Analyzer using Wikipedia confirmation + signals.", badge:"AI"},
-  {id:"earthquake", title:"🌍 Earthquake Radar", desc:"Latest earthquakes using USGS API.", badge:"LIVE"},
-  {id:"iss", title:"🛰 ISS Tracker", desc:"Track International Space Station (Open Notify).", badge:"SPACE"},
-  {id:"spaceweather", title:"☀ Space Weather", desc:"Solar storm alerts using NOAA API.", badge:"NOAA"},
-  {id:"timezone", title:"🕒 Timezone Explorer", desc:"Live timezones using WorldTimeAPI.", badge:"TIME"},
+  {id:"news", title:"📰 Fake News Analyzer", desc:"Wikipedia + clickbait signal analyzer.", badge:"AI"},
+  {id:"earthquake", title:"🌍 Earthquake Radar", desc:"Latest earthquakes worldwide (USGS API).", badge:"LIVE"},
+  {id:"iss", title:"🛰 ISS Tracker", desc:"Track ISS live using HTTPS satellite API.", badge:"SPACE"},
+  {id:"spacex", title:"🚀 SpaceX Launch Tracker", desc:"Upcoming SpaceX launch information.", badge:"SPACE"},
+  {id:"timezone", title:"🕒 Timezone Explorer", desc:"Check timezones using WorldTimeAPI.", badge:"TIME"},
   {id:"location", title:"📡 Auto Location Scanner", desc:"Detect your approximate location via IP.", badge:"LIVE"},
   {id:"credits", title:"⚡ System Credits", desc:"Final page.", badge:"END"}
 ];
@@ -59,9 +63,11 @@ function renderApps(){
       <p>${app.desc}</p>
       <span class="badge">${app.badge}</span>
     `;
+
     appsDiv.appendChild(card);
   });
 }
+
 renderApps();
 
 /* Panel */
@@ -90,7 +96,7 @@ function openPanel(app){
   if(app==="country"){
     panelTitle.innerText = "Country Intelligence";
     panelContent.innerHTML = countryHTML();
-    emy("Search a country to scan its information.");
+    emy("Search a country (America works too).");
   }
 
   if(app==="wiki"){
@@ -116,20 +122,20 @@ function openPanel(app){
     panelTitle.innerText = "ISS Tracker";
     panelContent.innerHTML = issHTML();
     loadISS();
-    emy("Tracking ISS live...");
+    emy("Tracking International Space Station...");
   }
 
-  if(app==="spaceweather"){
-    panelTitle.innerText = "Space Weather Monitor";
-    panelContent.innerHTML = spaceWeatherHTML();
-    loadSpaceWeather();
-    emy("Checking solar storm alerts...");
+  if(app==="spacex"){
+    panelTitle.innerText = "SpaceX Launch Tracker";
+    panelContent.innerHTML = spacexHTML();
+    loadSpaceX();
+    emy("Fetching SpaceX launch data...");
   }
 
   if(app==="timezone"){
     panelTitle.innerText = "Timezone Explorer";
     panelContent.innerHTML = timezoneHTML();
-    emy("Type a timezone like Asia/Kolkata.");
+    emy("Type timezone like Asia/Kolkata.");
   }
 
   if(app==="location"){
@@ -148,15 +154,15 @@ function openPanel(app){
 
 function closePanel(){
   panel.classList.add("hidden");
-  emy("Choose another futuristic tool.");
+  emy("Select another futuristic tool.");
 }
 
 /* WEATHER */
 function weatherHTML(){
   return `
-    <h3>Weather Forecast (Free API)</h3>
-    <input id="weatherCity" placeholder="Enter city name (London, Tokyo, Mumbai)" />
-    <button onclick="getWeather()">Get Weather</button>
+    <h3>Weather Forecast</h3>
+    <input id="weatherCity" placeholder="City (Tokyo, London, Delhi)" />
+    <button onclick="getWeather()">Scan Weather</button>
     <div id="weatherResult" style="margin-top:14px;">---</div>
   `;
 }
@@ -170,7 +176,7 @@ async function getWeather(){
     return;
   }
 
-  out.innerText = "Searching city coordinates...";
+  out.innerHTML = loaderHTML();
 
   try{
     const geoURL = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`;
@@ -186,8 +192,6 @@ async function getWeather(){
     const lat = place.latitude;
     const lon = place.longitude;
 
-    out.innerText = "Fetching live weather...";
-
     const weatherURL = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,relative_humidity_2m`;
     const wRes = await fetch(weatherURL);
     const wData = await wRes.json();
@@ -195,7 +199,7 @@ async function getWeather(){
     out.innerHTML = `
       <h3>${place.name}, ${place.country}</h3>
       <p>🌡 Temperature: <b>${wData.current.temperature_2m}°C</b></p>
-      <p>💨 Wind Speed: <b>${wData.current.wind_speed_10m} km/h</b></p>
+      <p>💨 Wind: <b>${wData.current.wind_speed_10m} km/h</b></p>
       <p>💧 Humidity: <b>${wData.current.relative_humidity_2m}%</b></p>
     `;
 
@@ -209,8 +213,8 @@ async function getWeather(){
 function airHTML(){
   return `
     <h3>Air Quality Monitor</h3>
-    <input id="airCity" placeholder="Enter city name (Paris, Dubai)" />
-    <button onclick="getAir()">Check Air Quality</button>
+    <input id="airCity" placeholder="City (Paris, Dubai, Seoul)" />
+    <button onclick="getAir()">Scan Air</button>
     <div id="airResult" style="margin-top:14px;">---</div>
   `;
 }
@@ -224,7 +228,7 @@ async function getAir(){
     return;
   }
 
-  out.innerText = "Finding coordinates...";
+  out.innerHTML = loaderHTML();
 
   try{
     const geoURL = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`;
@@ -239,8 +243,6 @@ async function getAir(){
     const place = geoData.results[0];
     const lat = place.latitude;
     const lon = place.longitude;
-
-    out.innerText = "Fetching air quality...";
 
     const airURL = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone`;
     const airRes = await fetch(airURL);
@@ -255,7 +257,7 @@ async function getAir(){
       <p>☀ Ozone: <b>${airData.current.ozone}</b></p>
     `;
 
-    emy("Air quality scan completed.");
+    emy("Air scan completed.");
   } catch {
     out.innerText = "Air quality API failed.";
   }
@@ -265,13 +267,14 @@ async function getAir(){
 function cryptoHTML(){
   return `
     <h3>Crypto Tracker</h3>
-    <div id="cryptoResult" style="margin-top:14px;">Loading...</div>
-    <button onclick="loadCrypto()">Refresh</button>
+    <div id="cryptoResult" style="margin-top:14px;">${loaderHTML()}</div>
+    <button onclick="loadCrypto()">Refresh Prices</button>
   `;
 }
 
 async function loadCrypto(){
   const out = document.getElementById("cryptoResult");
+  out.innerHTML = loaderHTML();
 
   try{
     const url="https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,dogecoin&vs_currencies=usd";
@@ -284,6 +287,8 @@ async function loadCrypto(){
       <p>◎ Solana: <b>$${data.solana.usd}</b></p>
       <p>🐶 Dogecoin: <b>$${data.dogecoin.usd}</b></p>
     `;
+
+    emy("Crypto feed updated.");
   }catch{
     out.innerText="Crypto API failed.";
   }
@@ -293,32 +298,52 @@ async function loadCrypto(){
 function countryHTML(){
   return `
     <h3>Country Intelligence Scanner</h3>
-    <input id="countryInput" placeholder="India, Japan, Canada..." />
-    <button onclick="scanCountry()">Scan</button>
+    <input id="countryInput" placeholder="India, America, Japan, France..." />
+    <button onclick="scanCountry()">Scan Country</button>
     <div id="countryResult" style="margin-top:14px;">---</div>
   `;
 }
 
 async function scanCountry(){
-  const input=document.getElementById("countryInput").value.trim();
-  const out=document.getElementById("countryResult");
+  let input = document.getElementById("countryInput").value.trim();
+  const out = document.getElementById("countryResult");
 
-  if(!input){ out.innerText="Type a country name."; return; }
+  if(!input){
+    out.innerText="Type a country name.";
+    return;
+  }
 
-  out.innerText="Scanning database...";
+  const aliases = {
+    "america":"United States",
+    "usa":"United States",
+    "u.s.a":"United States",
+    "uk":"United Kingdom",
+    "england":"United Kingdom"
+  };
+
+  const lower = input.toLowerCase();
+  if(aliases[lower]) input = aliases[lower];
+
+  out.innerHTML = loaderHTML();
 
   try{
     const url=`https://restcountries.com/v3.1/name/${encodeURIComponent(input)}?fullText=true`;
     const res=await fetch(url);
-    const data=await res.json();
 
+    if(!res.ok){
+      out.innerText="Country not found.";
+      return;
+    }
+
+    const data=await res.json();
     const c=data[0];
+
     const name=c.name.common;
-    const capital=c.capital?c.capital[0]:"N/A";
-    const population=c.population.toLocaleString();
-    const region=c.region;
-    const currency=c.currencies?Object.keys(c.currencies)[0]:"N/A";
-    const languages=c.languages?Object.values(c.languages).join(", "):"N/A";
+    const capital=c.capital ? c.capital[0] : "N/A";
+    const population=c.population ? c.population.toLocaleString() : "N/A";
+    const region=c.region || "N/A";
+    const currency=c.currencies ? Object.keys(c.currencies)[0] : "N/A";
+    const languages=c.languages ? Object.values(c.languages).join(", ") : "N/A";
 
     out.innerHTML=`
       <h3>${name}</h3>
@@ -328,6 +353,8 @@ async function scanCountry(){
       <p>💰 Currency: <b>${currency}</b></p>
       <p>🗣 Languages: <b>${languages}</b></p>
     `;
+
+    emy("Country scan completed.");
   }catch{
     out.innerText="Country API failed.";
   }
@@ -336,7 +363,7 @@ async function scanCountry(){
 /* WIKI */
 function wikiHTML(){
   return `
-    <h3>Wikipedia Search</h3>
+    <h3>Wikipedia Search Engine</h3>
     <input id="wikiInput" placeholder="AI, Plastic, Universe..." />
     <button onclick="wikiSearch()">Search</button>
     <div id="wikiResult" style="margin-top:14px;">---</div>
@@ -347,9 +374,12 @@ async function wikiSearch(){
   const input=document.getElementById("wikiInput").value.trim();
   const out=document.getElementById("wikiResult");
 
-  if(!input){ out.innerText="Type something first."; return; }
+  if(!input){
+    out.innerText="Type something first.";
+    return;
+  }
 
-  out.innerText="Connecting to Wikipedia...";
+  out.innerHTML = loaderHTML();
 
   try{
     const url=`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(input)}`;
@@ -365,6 +395,8 @@ async function wikiSearch(){
       <h3>${data.title}</h3>
       <p style="margin-top:10px;line-height:1.6;">${data.extract}</p>
     `;
+
+    emy("Knowledge extracted.");
   }catch{
     out.innerText="Wikipedia API failed.";
   }
@@ -385,37 +417,59 @@ async function analyzeNews(){
   const input=inputRaw.toLowerCase();
   const out=document.getElementById("newsResult");
 
-  if(!inputRaw){ out.innerText="Paste something first."; return; }
+  if(!inputRaw){
+    out.innerText="Paste something first.";
+    return;
+  }
 
-  out.innerText="Analyzing signals...";
+  out.innerHTML = loaderHTML();
 
-  let score=80;
+  let score=85;
   let signals=[];
 
-  ["shocking","unbelievable","secret","exposed","miracle","breaking"].forEach(w=>{
-    if(input.includes(w)){ score-=12; signals.push("Clickbait: "+w); }
+  const clickbait=["shocking","unbelievable","secret","exposed","miracle","breaking","you won't believe","truth revealed"];
+  const conspiracy=["government hiding","deep state","cover-up","agenda","brainwashing"];
+
+  clickbait.forEach(w=>{
+    if(input.includes(w)){
+      score -= 12;
+      signals.push("Clickbait keyword: " + w);
+    }
   });
 
-  if((inputRaw.match(/!/g)||[]).length>=3){
-    score-=14;
+  conspiracy.forEach(w=>{
+    if(input.includes(w)){
+      score -= 18;
+      signals.push("Conspiracy phrase: " + w);
+    }
+  });
+
+  const exclamations=(inputRaw.match(/!/g)||[]).length;
+  if(exclamations>=3){
+    score -= 15;
     signals.push("Too many exclamation marks.");
   }
 
+  if(inputRaw.length < 70){
+    score -= 10;
+    signals.push("Very short headline (low context).");
+  }
+
   try{
-    const topic=inputRaw.split(" ").slice(0,5).join(" ");
+    const topic=inputRaw.split(" ").slice(0,6).join(" ");
     const wikiURL=`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
     const wikiRes=await fetch(wikiURL);
     const wikiData=await wikiRes.json();
 
     if(wikiData.extract){
-      score+=15;
-      signals.push("Wikipedia confirms related topic.");
+      score += 12;
+      signals.push("Wikipedia has related information.");
     }else{
-      score-=15;
-      signals.push("Wikipedia did not confirm topic.");
+      score -= 15;
+      signals.push("Wikipedia could not confirm topic.");
     }
   }catch{
-    signals.push("Wikipedia check failed.");
+    signals.push("Wikipedia verification failed.");
   }
 
   if(score>100) score=100;
@@ -428,104 +482,118 @@ async function analyzeNews(){
   out.innerHTML=`
     <h2>Trust Score: ${score}/100</h2>
     <p><b>Status:</b> ${status}</p>
+
+    <h3 style="margin-top:12px;">Signals</h3>
     <ul style="margin-top:10px;padding-left:20px;line-height:1.6;">
-      ${signals.length?signals.map(s=>`<li>${s}</li>`).join(""):"<li>No suspicious patterns found.</li>"}
+      ${signals.length ? signals.map(s=>`<li>${s}</li>`).join("") : "<li>No suspicious patterns found.</li>"}
     </ul>
+
+    <p style="margin-top:12px;opacity:0.7;font-size:12px;">
+      This is a heuristic analyzer, not an official fact-checker.
+    </p>
   `;
+
+  emy("Fake news analysis complete.");
 }
 
-/* EARTHQUAKE (USGS) */
+/* EARTHQUAKE */
 function earthquakeHTML(){
   return `
     <h3>Earthquake Radar</h3>
-    <p style="opacity:0.8;">Latest earthquakes (worldwide).</p>
-    <div id="quakeResult" style="margin-top:14px;">Loading...</div>
-    <button onclick="loadEarthquakes()">Refresh</button>
+    <p style="opacity:0.8;">Latest earthquakes worldwide (24h).</p>
+    <div id="quakeResult" style="margin-top:14px;">${loaderHTML()}</div>
+    <button onclick="loadEarthquakes()">Refresh Feed</button>
   `;
 }
 
 async function loadEarthquakes(){
   const out=document.getElementById("quakeResult");
+  out.innerHTML = loaderHTML();
 
   try{
     const url="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
     const res=await fetch(url);
     const data=await res.json();
 
-    const list=data.features.slice(0,8).map(q=>{
-      return `<li><b>M${q.properties.mag}</b> - ${q.properties.place}</li>`;
+    const list=data.features.slice(0,10).map(q=>{
+      return `<li><b>M${q.properties.mag}</b> — ${q.properties.place}</li>`;
     }).join("");
 
     out.innerHTML=`<ul style="padding-left:20px;line-height:1.6;">${list}</ul>`;
+    emy("Earthquake feed updated.");
   }catch{
     out.innerText="Earthquake API failed.";
   }
 }
 
-/* ISS TRACKER */
+/* ISS */
 function issHTML(){
   return `
     <h3>ISS Tracker</h3>
-    <div id="issResult" style="margin-top:14px;">Loading...</div>
-    <button onclick="loadISS()">Refresh</button>
+    <div id="issResult" style="margin-top:14px;">${loaderHTML()}</div>
+    <button onclick="loadISS()">Refresh Location</button>
   `;
 }
 
 async function loadISS(){
   const out=document.getElementById("issResult");
+  out.innerHTML = loaderHTML();
 
   try{
-    const url="http://api.open-notify.org/iss-now.json";
+    const url="https://api.wheretheiss.at/v1/satellites/25544";
     const res=await fetch(url);
     const data=await res.json();
 
     out.innerHTML=`
-      <p>Latitude: <b>${data.iss_position.latitude}</b></p>
-      <p>Longitude: <b>${data.iss_position.longitude}</b></p>
-      <p>Timestamp: <b>${new Date(data.timestamp*1000).toLocaleString()}</b></p>
+      <p>Latitude: <b>${data.latitude.toFixed(3)}</b></p>
+      <p>Longitude: <b>${data.longitude.toFixed(3)}</b></p>
+      <p>Altitude: <b>${Math.round(data.altitude)} km</b></p>
+      <p>Velocity: <b>${Math.round(data.velocity)} km/h</b></p>
     `;
+
+    emy("ISS coordinates updated.");
   }catch{
-    out.innerText="ISS API blocked (GitHub Pages blocks HTTP).";
+    out.innerText="ISS API failed.";
   }
 }
 
-/* SPACE WEATHER (NOAA) */
-function spaceWeatherHTML(){
+/* SpaceX */
+function spacexHTML(){
   return `
-    <h3>Space Weather Alerts</h3>
-    <div id="spaceResult" style="margin-top:14px;">Loading...</div>
-    <button onclick="loadSpaceWeather()">Refresh</button>
+    <h3>SpaceX Launch Tracker</h3>
+    <div id="spacexResult" style="margin-top:14px;">${loaderHTML()}</div>
+    <button onclick="loadSpaceX()">Refresh Launch</button>
   `;
 }
 
-async function loadSpaceWeather(){
-  const out=document.getElementById("spaceResult");
+async function loadSpaceX(){
+  const out=document.getElementById("spacexResult");
+  out.innerHTML = loaderHTML();
 
   try{
-    const url="https://services.swpc.noaa.gov/json/alerts.json";
+    const url="https://api.spacexdata.com/v4/launches/next";
     const res=await fetch(url);
     const data=await res.json();
 
-    if(!data || data.length===0){
-      out.innerText="No active alerts.";
-      return;
-    }
+    out.innerHTML=`
+      <h3>${data.name}</h3>
+      <p>📅 Launch Date: <b>${new Date(data.date_utc).toLocaleString()}</b></p>
+      <p style="margin-top:10px;line-height:1.6;">
+        ${data.details ? data.details : "No mission details available."}
+      </p>
+    `;
 
-    const list=data.slice(0,5).map(a=>{
-      return `<li><b>${a.product_id}</b>: ${a.message}</li>`;
-    }).join("");
-
-    out.innerHTML=`<ul style="padding-left:20px;line-height:1.6;">${list}</ul>`;
+    emy("SpaceX launch data loaded.");
   }catch{
-    out.innerText="NOAA API failed.";
+    out.innerText="SpaceX API failed.";
   }
 }
 
-/* TIMEZONE */
+/* Timezone */
 function timezoneHTML(){
   return `
     <h3>Timezone Explorer</h3>
-    <input id="tzInput" placeholder="Asia/Kolkata, Europe/London, America/New_York" />
+    <input id="tzInput" placeholder="Asia/Kolkata, Europe/London..." />
     <button onclick="checkTimezone()">Check Time</button>
     <div id="tzResult" style="margin-top:14px;">---</div>
   `;
@@ -535,9 +603,12 @@ async function checkTimezone(){
   const tz=document.getElementById("tzInput").value.trim();
   const out=document.getElementById("tzResult");
 
-  if(!tz){ out.innerText="Type a timezone first."; return; }
+  if(!tz){
+    out.innerText="Type a timezone first.";
+    return;
+  }
 
-  out.innerText="Fetching time...";
+  out.innerHTML = loaderHTML();
 
   try{
     const url=`https://worldtimeapi.org/api/timezone/${encodeURIComponent(tz)}`;
@@ -554,22 +625,25 @@ async function checkTimezone(){
       <p><b>Current Time:</b> ${new Date(data.datetime).toLocaleString()}</p>
       <p><b>UTC Offset:</b> ${data.utc_offset}</p>
     `;
+
+    emy("Timezone scan complete.");
   }catch{
     out.innerText="Timezone API failed.";
   }
 }
 
-/* LOCATION */
+/* Location */
 function locationHTML(){
   return `
     <h3>Auto Location Scanner</h3>
-    <div id="locResult" style="margin-top:14px;">Scanning...</div>
+    <div id="locResult" style="margin-top:14px;">${loaderHTML()}</div>
     <button onclick="detectLocation()">Rescan</button>
   `;
 }
 
 async function detectLocation(){
   const out=document.getElementById("locResult");
+  out.innerHTML = loaderHTML();
 
   try{
     const res=await fetch("https://ipapi.co/json/");
@@ -581,6 +655,8 @@ async function detectLocation(){
       <p>📡 IP: <b>${data.ip}</b></p>
       <p>🕒 Timezone: <b>${data.timezone}</b></p>
     `;
+
+    emy("Location scan completed.");
   }catch{
     out.innerText="Location API failed.";
   }
@@ -596,4 +672,4 @@ function creditsHTML(){
   `;
 }
 
-emy("Welcome to NeuraLib OS X v2. Select an API tool.");
+emy("Welcome to NeuraLib OS X Pro. Select an API tool.");
